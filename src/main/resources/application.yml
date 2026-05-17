@@ -1,0 +1,31 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/psw_db
+    username: app_user
+    password: app_pass
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/psw-realm
+      client:
+        registration:
+          keycloak:
+            client-id: psw-client
+            client-secret: ShLe8IjvYpcDkYc0njBN4EmuTu57Ninu
+            scope: openid
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8080/realms/psw-realm
+            user-name-attribute: preferred_username

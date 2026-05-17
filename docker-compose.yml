@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+
+  keycloak-db:
+    image: postgres:latest
+    container_name: psw-keycloak-db
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak_user
+      POSTGRES_PASSWORD: keycloak_pass
+    volumes:
+      - keycloak_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - psw-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: psw-keycloak
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL_HOST: keycloak-db
+      KC_DB_PORT: 5432
+      KC_DB_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak_user
+      KC_DB_PASSWORD: keycloak_pass
+      QUARKUS_TRANSACTION_MANAGER_ENABLE_RECOVERY: true
+    depends_on:
+      - keycloak-db
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak-providers:/opt/keycloak/providers
+    networks:
+      - psw-network
+
+
+  app-db:
+    image: postgres:latest
+    container_name: psw-app-db
+    environment:
+      POSTGRES_DB: psw_db
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: app_pass
+    volumes:
+      - app_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - psw-network
+
+volumes:
+  keycloak_data:
+  app_data:
+
+networks:
+  psw-network:
+    driver: bridge
